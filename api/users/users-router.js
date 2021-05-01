@@ -17,7 +17,10 @@ router.get("/", async (req, res, next) => {
   // RETURN AN ARRAY WITH ALL THE USERS
   try {
     const allUsers = await users.get();
-    res.status(200).json(allUsers);
+    res.status(200).json({
+      allUsers,
+      fact: `Welcome ${process.env.COHORT}`,
+    });
   } catch (err) {
     next(err);
   }
