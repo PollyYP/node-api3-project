@@ -23,13 +23,13 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-router.get("/:id", validateUserId(), (req, res) => {
+router.get("/:id", validateUserId, (req, res) => {
   // RETURN THE USER OBJECT
   // this needs a middleware to verify user id
-  res.json(req.user);
+  res.status(200).json(req.user);
 });
 
-router.post("/", validateUser(), async (req, res, next) => {
+router.post("/", validateUser, async (req, res, next) => {
   // RETURN THE NEWLY CREATED USER OBJECT
   // this needs a middleware to check that the request body is valid
   try {
@@ -40,33 +40,32 @@ router.post("/", validateUser(), async (req, res, next) => {
   }
 });
 
-router.put("/:id", validateUserId(), validateUser(), async (req, res, next) => {
+router.put("/:id", validateUserId, validateUser, async (req, res, next) => {
   // RETURN THE FRESHLY UPDATED USER OBJECT
   // this needs a middleware to verify user id
   // and another middleware to check that the request body is valid
+
   try {
-    const updatedUser = users.update(req.params.id, req.body);
-    res.status(200).json(updatedUser);
+    await users.update(req.params.id, req.body);
+    const updatedUser = await users.getById(req.params.id);
+    res.status(201).json(updatedUser);
   } catch (err) {
     next(err);
   }
 });
 
-router.delete("/:id", validateUserId(), async (req, res, next) => {
+router.delete("/:id", validateUserId, async (req, res, next) => {
   // RETURN THE FRESHLY DELETED USER OBJECT
   // this needs a middleware to verify user id
   try {
-    const deleted = await users.remove(req.params.id);
-    console.log(deleted);
-    res.status(200).json({
-      message: "The user has been deleted",
-    });
+    res.status(201).json(req.user);
+    await users.remove(req.params.id);
   } catch (err) {
     next(err);
   }
 });
 
-router.get("/:id/posts", validateUserId(), async (req, res, next) => {
+router.get("/:id/posts", validateUserId, async (req, res, next) => {
   // RETURN THE ARRAY OF USER POSTS
   // this needs a middleware to verify user id
 
@@ -80,8 +79,8 @@ router.get("/:id/posts", validateUserId(), async (req, res, next) => {
 
 router.post(
   "/:id/posts",
-  validateUserId(),
-  validatePost(),
+  validateUserId,
+  validatePost,
   async (req, res, next) => {
     // RETURN THE NEWLY CREATED USER POST
     // this needs a middleware to verify user id
